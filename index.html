@@ -296,6 +296,111 @@
   }
   .quote span{color:var(--cyan);}
   .footer-sig{font-family:var(--mono); font-size:11px; color:var(--text-dim); letter-spacing:2px;}
+  /* ================= PROFILE CARD ================= */
+
+.identity-card{
+    width:720px;
+    max-width:95%;
+
+    margin:30px auto 40px;
+
+    display:flex;
+    align-items:center;
+    gap:35px;
+
+    padding:25px;
+
+    background:rgba(12,18,28,.75);
+
+    backdrop-filter:blur(20px);
+
+    border:1px solid rgba(0,229,255,.25);
+
+    border-radius:18px;
+
+    box-shadow:
+    0 0 40px rgba(0,229,255,.18),
+    inset 0 0 30px rgba(255,255,255,.03);
+}
+
+.identity-image{
+
+    width:240px;
+    height:320px;
+
+    overflow:hidden;
+
+    border-radius:14px;
+
+    border:2px solid var(--cyan);
+
+    flex-shrink:0;
+}
+
+.identity-image img{
+
+    width:100%;
+    height:100%;
+
+    object-fit:cover;
+
+    object-position:center 15%;
+
+    display:block;
+}
+
+.identity-info{
+
+    flex:1;
+
+    text-align:left;
+}
+
+.identity-info h2{
+
+    font-family:var(--display);
+
+    color:var(--cyan);
+
+    font-size:38px;
+
+    margin-bottom:18px;
+}
+
+.identity-info p{
+
+    color:#cfd9e6;
+
+    font-size:18px;
+
+    margin:12px 0;
+
+    letter-spacing:1px;
+}
+
+@media(max-width:700px){
+
+.identity-card{
+
+flex-direction:column;
+
+text-align:center;
+}
+
+.identity-info{
+
+text-align:center;
+}
+
+.identity-image{
+
+width:220px;
+
+height:300px;
+}
+
+}
+  
 </style>
 </head>
 <body>
@@ -322,7 +427,7 @@
 
     <div class="identity-image">
 
-        <img src="lakshay garg.jpeg" alt="Lakshay">
+        <img src="lakshay garg.jpeg" alt="Lakshay Garg">
 
     </div>
 
@@ -385,7 +490,7 @@
     <div class="garage-grid">
 
       <div class="car-card reveal">
-                <div class="car-body"> <img src="defender.jpg">
+                <div class="car-body"><img src="defender.jpg" style="width:100%;height:180px;object-fit:cover;">
           <div class="car-name">Land Rover Defender</div>
           <div class="car-tag">OFF-ROAD / RUGGED LUXURY</div>
           <div class="car-desc">Built for terrain and presence — the vehicle that says you go anywhere.</div>
@@ -393,7 +498,7 @@
         </div>
       <div>
       <div class="car-card reveal">
-         <img src="porche.jpg">
+         <img src="porche.jpg" style="width:100%;height:180px;object-fit:cover;">
         <div class="car-body">
           <div class="car-name">Porsche</div>
           <div class="car-tag">PERFORMANCE ICON</div>
@@ -403,7 +508,7 @@
       </div>
 
       <div class="car-card reveal">
-        <img src="g wagon.jpg">        <div class="car-body">
+        <img src="g wagon.jpg" style="width:100%;height:180px;object-fit:cover;">        <div class="car-body">
           <div class="car-name">Mercedes G-Wagon</div>
           <div class="car-tag">STATEMENT / BOXY LEGEND</div>
           <div class="car-desc">Unmistakable silhouette. The car that arrives before you do.</div>
@@ -412,7 +517,7 @@
       </div>
 
       <div class="car-card reveal">
-        <img src="fortuner.jpg"> 
+        <img src="fortunerr.jpg" style="width:100%;height:180px;object-fit:cover;"> 
         <div class="car-body">
           <div class="car-name">Toyota Fortuner</div>
           <div class="car-tag">RELIABLE / EVERYDAY BEAST</div>
