@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LAKSHAY GARG // DOSSIER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     DESIGN TOKENS
+     ============================================================ */
+  :root{
+    --void:#06060a;
+    --void-2:#0c0e16;
+    --panel:#0e1018cc;
+    --cyan:#01e5ff;
+    --magenta:#ff1f9c;
+    --violet:#7c3aff;
+    --amber:#ffc300;
+    --text:#e9f2ff;
+    --text-dim:#7d8aa3;
+    --line:rgba(1,229,255,.18);
+    --display:'Chakra Petch',sans-serif;
+    --body:'Rajdhani',sans-serif;
+    --mono:'Share Tech Mono',monospace;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--void);
+    color:var(--text);
+    font-family:var(--body);
+    overflow-x:hidden;
+    min-height:100vh;
+  }
+
+  /* respect reduced motion */
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important;}
+  }
+
+  a{color:inherit; text-decoration:none;}
+  ::selection{background:var(--magenta); color:#000;}
+
+  /* ============================================================
+     BACKGROUND CANVAS (animated grid + particles)
+     ============================================================ */
+  #bg-grid{
+    position:fixed; inset:0; z-index:0; width:100vw; height:100vh;
+    background:radial-gradient(ellipse at 50% 0%, #0b0a16 0%, var(--void) 75%);
+  }
+
+  .scanline-overlay{
+    position:fixed; inset:0; z-index:1; pointer-events:none;
+    background:repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 3px);
+    mix-blend-mode:overlay;
+  }
+  .vignette{
+    position:fixed; inset:0; z-index:1; pointer-events:none;
+    box-shadow:inset 0 0 20vw 4vw rgba(0,0,0,0.85);
+  }
+
+  /* ============================================================
+     NAV
+     ============================================================ */
+  nav{
+    position:fixed; top:0; left:0; right:0; z-index:50;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:18px 28px;
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:2px;
+    color:var(--text-dim);
+    background:linear-gradient(180deg, rgba(6,6,10,0.85), transparent);
+    backdrop-filter:blur(2px);
+  }
+  .nav-brand{color:var(--cyan); text-shadow:0 0 8px rgba(1,229,255,.6);}
+  .nav-links{display:flex; gap:24px;}
+  .nav-links a{position:relative; transition:color .25s;}
+  .nav-links a:hover, .nav-links a:focus-visible{color:var(--cyan);}
+  .nav-links a::after{
+    content:''; position:absolute; left:0; bottom:-4px; width:0; height:1px;
+    background:var(--cyan); transition:width .25s;
+  }
+  .nav-links a:hover::after{width:100%;}
+  @media (max-width:640px){ .nav-links{display:none;} }
+
+  /* ============================================================
+     LAYOUT / SECTIONS
+     ============================================================ */
+  main{position:relative; z-index:2;}
+  section{
+    padding:120px 8vw 80px;
+    max-width:1180px;
+    margin:0 auto;
+    position:relative;
+  }
+  .eyebrow{
+    font-family:var(--mono); font-size:12px; letter-spacing:4px;
+    color:var(--magenta); margin-bottom:14px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{content:''; width:24px; height:1px; background:var(--magenta);}
+  h2.section-title{
+    font-family:var(--display); font-weight:700; font-size:clamp(28px,4vw,44px);
+    letter-spacing:1px; margin-bottom:36px; text-transform:uppercase;
+  }
+
+  /* reveal-on-scroll */
+  .reveal{opacity:0; transform:translateY(24px); transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1; transform:translateY(0);}
+
+  /* ============================================================
+     HERO
+     ============================================================ */
+  .hero{
+    min-height:100vh; display:flex; flex-direction:column; justify-content:center;
+    align-items:center; text-align:center; padding-top:80px;
+  }
+  .hero-tag{
+    font-family:var(--mono); font-size:13px; color:var(--cyan); letter-spacing:3px;
+    margin-bottom:18px; opacity:0; animation:fadeUp .8s ease .2s forwards;
+  }
+  .hero-tag .cursor{display:inline-block; width:8px; height:14px; background:var(--cyan); margin-left:4px; animation:blink 1s steps(1) infinite;}
+
+  .avatar-frame{
+    width:150px; height:150px; margin:0 auto 26px; position:relative;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; animation:fadeUp .8s ease .35s forwards;
+  }
+  .avatar-frame .placeholder{
+    width:100%; height:100%; border-radius:6px;
+    background:linear-gradient(135deg, #10131f, #0a0c14);
+    border:1px dashed var(--line);
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--mono); font-size:10px; color:var(--text-dim); letter-spacing:1px;
+    text-align:center; padding:8px;
+  }
+  /* corner brackets - "target lock" HUD look */
+  .corner{position:absolute; width:20px; height:20px; border-color:var(--cyan); opacity:.9;}
+  .corner.tl{top:-8px; left:-8px; border-top:2px solid; border-left:2px solid;}
+  .corner.tr{top:-8px; right:-8px; border-top:2px solid; border-right:2px solid;}
+  .corner.bl{bottom:-8px; left:-8px; border-bottom:2px solid; border-left:2px solid;}
+  .corner.br{bottom:-8px; right:-8px; border-bottom:2px solid; border-right:2px solid;}
+
+  .hero h1{
+    font-family:var(--display); font-weight:700;
+    font-size:clamp(42px,9vw,96px); line-height:1;
+    letter-spacing:1px; text-transform:uppercase;
+    background:linear-gradient(90deg,var(--cyan),var(--text) 40%,var(--magenta));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    filter:drop-shadow(0 0 18px rgba(1,229,255,.25));
+    opacity:0; animation:fadeUp .8s ease .5s forwards;
+  }
+  .hero h1 .glitch{position:relative; display:inline-block;}
+
+  .hero-sub{
+    margin-top:18px; font-size:clamp(15px,2vw,20px); color:var(--text-dim);
+    max-width:560px; font-weight:500;
+    opacity:0; animation:fadeUp .8s ease .7s forwards;
+  }
+  .hero-sub b{color:var(--text); font-weight:600;}
+
+  .hero-stats{
+    margin-top:44px; display:flex; gap:34px; flex-wrap:wrap; justify-content:center;
+    font-family:var(--mono); font-size:12px; color:var(--text-dim); letter-spacing:1.5px;
+    opacity:0; animation:fadeUp .8s ease .9s forwards;
+  }
+  .hero-stats span b{display:block; font-family:var(--display); font-size:20px; color:var(--cyan); letter-spacing:0;}
+
+  .scroll-hint{
+    position:absolute; bottom:28px; font-family:var(--mono); font-size:11px;
+    color:var(--text-dim); letter-spacing:2px; animation:bob 2s ease-in-out infinite;
+  }
+
+  @keyframes fadeUp{ from{opacity:0; transform:translateY(16px);} to{opacity:1; transform:translateY(0);} }
+  @keyframes blink{ 50%{opacity:0;} }
+  @keyframes bob{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(6px);} }
+
+  /* ============================================================
+     MISSION
+     ============================================================ */
+  .mission-grid{display:grid; grid-template-columns:1.3fr 1fr; gap:40px;}
+  @media (max-width:800px){ .mission-grid{grid-template-columns:1fr;} }
+  .mission-text{font-size:19px; line-height:1.7; color:var(--text-dim);}
+  .mission-text b{color:var(--text); font-weight:600;}
+  .mission-text .highlight{color:var(--cyan); font-weight:600;}
+
+  .readout{
+    border:1px solid var(--line); border-radius:8px; padding:22px;
+    background:linear-gradient(160deg, rgba(1,229,255,0.04), transparent);
+    font-family:var(--mono); font-size:12px; color:var(--text-dim);
+  }
+  .readout-row{display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--line);}
+  .readout-row:last-child{border-bottom:none;}
+  .readout-row span:last-child{color:var(--cyan);}
+
+  /* ============================================================
+     GARAGE - car cards
+     ============================================================ */
+  .garage-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:22px;}
+  .car-card{
+    border:1px solid var(--line); border-radius:10px; overflow:hidden;
+    background:var(--void-2); position:relative;
+    transition:transform .35s ease, border-color .35s ease, box-shadow .35s ease;
+  }
+  .car-card:hover{
+    transform:translateY(-6px);
+    border-color:var(--cyan);
+    box-shadow:0 12px 40px -12px rgba(1,229,255,.35);
+  }
+  .car-img{
+    height:150px; display:flex; align-items:center; justify-content:center;
+    background:repeating-linear-gradient(135deg, #0d1018, #0d1018 10px, #0f1320 10px, #0f1320 20px);
+    border-bottom:1px solid var(--line);
+    font-family:var(--mono); font-size:10px; color:var(--text-dim); text-align:center; padding:10px;
+  }
+  /* To use your own photo: replace the .car-img div's content with
+     <img src="your-photo.jpg" alt="Car name" style="width:100%;height:100%;object-fit:cover;"> */
+  .car-body{padding:18px 20px 20px;}
+  .car-name{font-family:var(--display); font-weight:700; font-size:19px; letter-spacing:.5px;}
+  .car-tag{font-family:var(--mono); font-size:11px; color:var(--magenta); margin-top:4px; letter-spacing:1px;}
+  .car-desc{margin-top:10px; font-size:14px; color:var(--text-dim); line-height:1.5;}
+  .status-pill{
+    display:inline-block; margin-top:14px; font-family:var(--mono); font-size:10px;
+    letter-spacing:1.5px; padding:4px 10px; border-radius:20px;
+    border:1px solid var(--amber); color:var(--amber);
+  }
+
+  /* ============================================================
+     ESTATE
+     ============================================================ */
+  .estate-panel{
+    display:grid; grid-template-columns:1fr 1fr; gap:0;
+    border:1px solid var(--line); border-radius:12px; overflow:hidden;
+    background:var(--void-2);
+  }
+  @media (max-width:760px){ .estate-panel{grid-template-columns:1fr;} }
+  .estate-img{
+    min-height:280px;
+    background:repeating-linear-gradient(45deg, #0d1018, #0d1018 12px, #10141f 12px, #10141f 24px);
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--mono); font-size:11px; color:var(--text-dim); text-align:center; padding:20px;
+    border-right:1px solid var(--line);
+  }
+  @media (max-width:760px){ .estate-img{border-right:none; border-bottom:1px solid var(--line);} }
+  .estate-body{padding:34px;}
+  .estate-body h3{font-family:var(--display); font-size:24px; margin-bottom:16px; letter-spacing:.5px;}
+  .estate-list{list-style:none; display:flex; flex-direction:column; gap:12px;}
+  .estate-list li{
+    display:flex; gap:10px; font-size:15px; color:var(--text-dim); align-items:flex-start;
+  }
+  .estate-list li::before{content:'▸'; color:var(--cyan); flex-shrink:0;}
+
+  /* ============================================================
+     QUEST LOG (goals as game levels)
+     ============================================================ */
+  .level-bar-wrap{
+    border:1px solid var(--line); border-radius:10px; padding:20px 24px; margin-bottom:34px;
+    background:linear-gradient(160deg, rgba(124,58,255,.06), transparent);
+  }
+  .level-bar-top{display:flex; justify-content:space-between; font-family:var(--mono); font-size:12px; color:var(--text-dim); margin-bottom:10px;}
+  .level-bar-top b{color:var(--violet);}
+  .level-bar{height:10px; border-radius:6px; background:#12131c; overflow:hidden; border:1px solid var(--line);}
+  .level-bar-fill{
+    height:100%; width:16%; border-radius:6px;
+    background:linear-gradient(90deg,var(--violet),var(--cyan));
+    box-shadow:0 0 12px rgba(1,229,255,.6);
+    animation:fillIn 1.6s ease .3s both;
+  }
+  @keyframes fillIn{ from{width:0;} }
+
+  .quest{
+    display:flex; justify-content:space-between; align-items:center; gap:16px;
+    padding:16px 20px; border:1px solid var(--line); border-radius:8px; margin-bottom:12px;
+    transition:border-color .25s, transform .25s;
+  }
+  .quest:hover{border-color:var(--cyan); transform:translateX(4px);}
+  .quest-name{font-family:var(--display); font-weight:600; font-size:16px;}
+  .quest-meta{font-family:var(--mono); font-size:11px; color:var(--text-dim); margin-top:4px;}
+  .quest-status{font-family:var(--mono); font-size:11px; letter-spacing:1px; padding:5px 12px; border-radius:20px; white-space:nowrap;}
+  .quest-status.active{color:var(--cyan); border:1px solid var(--cyan);}
+  .quest-status.locked{color:var(--text-dim); border:1px solid var(--line);}
+
+  /* ============================================================
+     FOOTER
+     ============================================================ */
+  footer{
+    text-align:center; padding:70px 8vw 50px; position:relative; z-index:2;
+  }
+  .quote{
+    font-family:var(--display); font-size:clamp(18px,2.6vw,26px); max-width:700px; margin:0 auto 18px;
+    color:var(--text); line-height:1.4;
+  }
+  .quote span{color:var(--cyan);}
+  .footer-sig{font-family:var(--mono); font-size:11px; color:var(--text-dim); letter-spacing:2px;}
+</style>
+</head>
+<body>
+
+<canvas id="bg-grid"></canvas>
+<div class="scanline-overlay"></div>
+<div class="vignette"></div>
+
+<nav>
+  <div class="nav-brand">L.G. // DOSSIER</div>
+  <div class="nav-links">
+    <a href="#mission">Mission</a>
+    <a href="#garage">Garage</a>
+    <a href="#estate">Estate</a>
+    <a href="#quests">Quest Log</a>
+  </div>
+</nav>
+
+<main>
+  <!-- ================= HERO ================= -->
+  <section class="hero">
+    <div class="hero-tag">SYSTEM ACCESS GRANTED <span class="cursor"></span></div>
+
+    <div class="avatar-frame">
+      <div class="corner tl"></div><div class="corner tr"></div>
+      <div class="corner bl"></div><div class="corner br"></div>
+      <!-- Swap this placeholder for your own photo later:
+           <img src="your-photo.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:6px;"> -->
+      <div class="placeholder">PHOTO<br>SLOT</div>
+    </div>
+
+    <h1><span class="glitch" id="glitchName">LAKSHAY GARG</span></h1>
+    <p class="hero-sub">Age <b>16</b>. Currently building — not born into the empire, <b>engineering</b> it one goal at a time.</p>
+
+    <div class="hero-stats">
+      <span><b>16</b>AGE</span>
+      <span><b>4</b>DREAM CARS</span>
+      <span><b>1</b>DREAM ESTATE</span>
+      <span><b>∞</b>AMBITION</span>
+    </div>
+
+    <div class="scroll-hint">SCROLL ▾</div>
+  </section>
+
+  <!-- ================= MISSION ================= -->
+  <section id="mission">
+    <div class="eyebrow reveal">001 // PROFILE</div>
+    <h2 class="section-title reveal">The Mission</h2>
+    <div class="mission-grid">
+      <p class="mission-text reveal">
+        I'm <b>Lakshay Garg</b>, 16 years old, and this page is my <span class="highlight">vision board</span> —
+        a running record of what I'm working toward. The goal is simple to say and hard to do:
+        <b>build something real</b>, earn it properly, and use it to get the life I've pictured —
+        the cars, the house, the freedom to take care of the people who matter.
+        Everything below isn't a fantasy list. It's a <span class="highlight">target list</span>.
+      </p>
+      <div class="readout reveal">
+        <div class="readout-row"><span>NAME</span><span>LAKSHAY GARG</span></div>
+        <div class="readout-row"><span>AGE</span><span>16</span></div>
+        <div class="readout-row"><span>STATUS</span><span>IN PROGRESS</span></div>
+        <div class="readout-row"><span>MODE</span><span>BUILD &amp; EARN</span></div>
+        <div class="readout-row"><span>OUTLOOK</span><span>LONG GAME</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= GARAGE ================= -->
+  <section id="garage">
+    <div class="eyebrow reveal">002 // COLLECTION</div>
+    <h2 class="section-title reveal">The Garage</h2>
+    <div class="garage-grid">
+
+      <div class="car-card reveal">
+                <div class="car-body"> <img src="images/defender.jpg">
+          <div class="car-name">Land Rover Defender</div>
+          <div class="car-tag">OFF-ROAD / RUGGED LUXURY</div>
+          <div class="car-desc">Built for terrain and presence — the vehicle that says you go anywhere.</div>
+          <div class="status-pill">TARGET LOCKED</div>
+        </div>
+      </div>
+s
+      <div class="car-card reveal">
+         <img src="images/porche.jpg">
+        <div class="car-body">
+          <div class="car-name">Porsche</div>
+          <div class="car-tag">PERFORMANCE ICON</div>
+          <div class="car-desc">Precision engineering. The car that rewards patience and results.</div>
+          <div class="status-pill">TARGET LOCKED</div>
+        </div>
+      </div>
+
+      <div class="car-card reveal">
+        <img src="images/g wagon.jpg">        <div class="car-body">
+          <div class="car-name">Mercedes G-Wagon</div>
+          <div class="car-tag">STATEMENT / BOXY LEGEND</div>
+          <div class="car-desc">Unmistakable silhouette. The car that arrives before you do.</div>
+          <div class="status-pill">TARGET LOCKED</div>
+        </div>
+      </div>
+
+      <div class="car-card reveal">
+        <img src="images/fortuner.jpg"> 
+        <div class="car-body">
+          <div class="car-name">Toyota Fortuner</div>
+          <div class="car-tag">RELIABLE / EVERYDAY BEAST</div>
+          <div class="car-desc">Solid, dependable, always ready — the fleet's workhorse.</div>
+          <div class="status-pill">TARGET LOCKED</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= ESTATE ================= -->
+  <section id="estate">
+    <div class="eyebrow reveal">003 // HEADQUARTERS</div>
+    <h2 class="section-title reveal">The Estate</h2>
+    <div class="estate-panel reveal">
+      <img src="images/mafia style house.jpg">
+      <div class="estate-body">
+        <h3>A Home Built Like a Fortress</h3>
+        <ul class="estate-list">
+          <li>Private gated entrance with a long driveway leading to a multi-car garage for the whole fleet</li>
+          <li>Home theater and a full games/lounge room for family and friends</li>
+          <li>Indoor pool + gym so training never stops</li>
+          <li>A quiet office — because the empire still needs running</li>
+          <li>Space for family, always — the point of building all this is to share it</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= QUEST LOG ================= -->
+  <section id="quests">
+    <div class="eyebrow reveal">004 // PROGRESS</div>
+    <h2 class="section-title reveal">Quest Log</h2>
+
+    <div class="level-bar-wrap reveal">
+      <div class="level-bar-top"><span>LEVEL <b>16</b></span><span>XP TO NEXT MILESTONE</span></div>
+      <div class="level-bar"><div class="level-bar-fill"></div></div>
+    </div>
+
+    <div class="quest reveal">
+      <div>
+        <div class="quest-name">Finish school strong</div>
+        <div class="quest-meta">FOUNDATION QUEST // everything else builds on this</div>
+      </div>
+      <div class="quest-status active">ACTIVE</div>
+    </div>
+
+    <div class="quest reveal">
+      <div>
+        <div class="quest-name">Learn a real, sellable skill</div>
+        <div class="quest-meta">SKILL QUEST // coding, trading, business — pick one and go deep</div>
+      </div>
+      <div class="quest-status active">ACTIVE</div>
+    </div>
+
+    <div class="quest reveal">
+      <div>
+        <div class="quest-name">First income stream</div>
+        <div class="quest-meta">MONEY QUEST // small and real beats big and imaginary</div>
+      </div>
+      <div class="quest-status locked">LOCKED</div>
+    </div>
+
+    <div class="quest reveal">
+      <div>
+        <div class="quest-name">The Garage</div>
+        <div class="quest-meta">REWARD QUEST // Defender, Porsche, G-Wagon, Fortuner</div>
+      </div>
+      <div class="quest-status locked">LOCKED</div>
+    </div>
+
+    <div class="quest reveal">
+      <div>
+        <div class="quest-name">The Estate</div>
+        <div class="quest-meta">FINAL BOSS // the house that proves the plan worked</div>
+      </div>
+      <div class="quest-status locked">LOCKED</div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p class="quote reveal">"Nobody's coming to hand it to you. <span>So build it.</span>"</p>
+  <div class="footer-sig">LAKSHAY GARG // DOSSIER v1.0 // STATUS: IN PROGRESS</div>
+</footer>
+
+<script>
+  /* ============================================================
+     BACKGROUND: flowing aurora / plasma waves
+     ============================================================ */
+  const canvas = document.getElementById('bg-grid');
+  const ctx = canvas.getContext('2d');
+  let w, h;
+
+  function resize(){
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Each band is a ribbon of light drifting across the screen at a different
+  // height, speed and hue — layered with additive blending for the glow.
+  const bands = [
+    { hue:'1,229,255',   baseY:0.30, amp:70,  speed:0.55, freq:1.4, phase:0.0,  width:220 }, // cyan
+    { hue:'124,58,255',  baseY:0.55, amp:90,  speed:0.35, freq:1.1, phase:2.1,  width:260 }, // violet
+    { hue:'255,31,156',  baseY:0.75, amp:60,  speed:0.45, freq:1.7, phase:4.2,  width:200 }, // magenta
+    { hue:'1,229,255',   baseY:0.15, amp:40,  speed:0.25, freq:2.0, phase:1.3,  width:150 }, // faint cyan high
+  ];
+
+  let t = 0;
+
+  function drawBand(band){
+    const { hue, baseY, amp, speed, freq, phase, width } = band;
+    const grad = ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0,   `rgba(${hue},0)`);
+    grad.addColorStop(0.5, `rgba(${hue},0.16)`);
+    grad.addColorStop(1,   `rgba(${hue},0)`);
+
+    ctx.beginPath();
+    const step = 12;
+    ctx.moveTo(0, h);
+    for(let x=0; x<=w; x+=step){
+      const y = baseY*h
+        + Math.sin(x*0.003*freq + t*speed + phase) * amp
+        + Math.sin(x*0.0009*freq - t*speed*0.6) * amp*0.4;
+      ctx.lineTo(x, y);
+    }
+    ctx.lineTo(w, h + width);
+    ctx.lineTo(0, h + width);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // bright core line riding on top of the ribbon for definition
+    ctx.beginPath();
+    for(let x=0; x<=w; x+=step){
+      const y = baseY*h
+        + Math.sin(x*0.003*freq + t*speed + phase) * amp
+        + Math.sin(x*0.0009*freq - t*speed*0.6) * amp*0.4;
+      x===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    }
+    ctx.strokeStyle = `rgba(${hue},0.35)`;
+    ctx.lineWidth = 1.4;
+    ctx.stroke();
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    ctx.globalCompositeOperation = 'lighter';
+    for(const band of bands) drawBand(band);
+    ctx.globalCompositeOperation = 'source-over';
+
+    if(!reduceMotion) t += 0.012;
+    requestAnimationFrame(draw);
+  }
+  draw();
+
+  /* ============================================================
+     SCROLL REVEAL
+     ============================================================ */
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, {threshold:0.15});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  /* ============================================================
+     NAME GLITCH EFFECT (brief, on load only)
+     ============================================================ */
+  const glitchEl = document.getElementById('glitchName');
+  const finalText = glitchEl.textContent;
+  const glitchChars = '!<>-_\\/[]{}—=+*^?#________';
+  if(!reduceMotion){
+    let frame = 0;
+    const totalFrames = 18;
+    function glitchStep(){
+      if(frame >= totalFrames){ glitchEl.textContent = finalText; return; }
+      let out = '';
+      for(let i=0;i<finalText.length;i++){
+        if(finalText[i] === ' '){ out += ' '; continue; }
+        const reveal = frame > (i/finalText.length)*totalFrames;
+        out += reveal ? finalText[i] : glitchChars[Math.floor(Math.random()*glitchChars.length)];
+      }
+      glitchEl.textContent = out;
+      frame++;
+      setTimeout(glitchStep, 45);
+    }
+    setTimeout(glitchStep, 550);
+  }
+</script>
+
+</body>
+</html>
